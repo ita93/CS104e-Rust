@@ -16,5 +16,14 @@ static void spin_sleep_ms(unsigned int ms) {
 
 int main(void) {
   // STEP 1: Set GPIO Pin 16 as output.
-  // STEP 2: Continuously set and clear GPIO 16.
+	unsigned set_output = 1 << 18;
+	*GPIO_FSEL1 |= set_output;
+  // STEP 2: Continuously set and clear GPIO 16
+	while (1) {
+		unsigned set_value = 1 << 16;
+		*GPIO_SET0 |= set_value;
+		spin_sleep_ms(100);
+		*GPIO_CLR0 |= set_value;
+		spin_sleep_ms(100);
+	}
 }

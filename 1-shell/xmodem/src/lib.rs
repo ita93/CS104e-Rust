@@ -235,7 +235,35 @@ impl<T: io::Read + io::Write> Xmodem<T> {
     ///
     /// An error of kind `UnexpectedEof` is returned if `buf.len() < 128`.
     pub fn read_packet(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        unimplemented!()
+        // If receiver wasn't start, We would start 
+        if (buf.len() < 128) {
+            return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "Need to be at least 128"));
+        }
+        if !self.started {
+            self.write_byte(NAK)?;
+            self.started = true;
+            (self.progress)(Progress::Started);
+        };
+        let mut header: u8;
+        header = self.read_byte(true)?;
+        match header {
+            SOH => {
+                
+            },
+            EOT => {
+                self.write_byte(NAK)?;
+                let res_header = self.read_byte(true)?;
+                if res_header == EOT {
+                    self.write_byte(ACK)?;
+                }
+                self.write_byte(CAN)?;
+                self.started = false;
+            },
+            _ => {
+                self.write_byte(CAN)?;
+                self.started = false;
+            },
+        };
     }
 
     /// Sends (uploads) a single packet to the inner stream using the XMODEM

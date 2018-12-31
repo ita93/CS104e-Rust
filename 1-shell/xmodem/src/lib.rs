@@ -345,11 +345,22 @@ impl<T: io::Read + io::Write> Xmodem<T> {
           acc.wrapping_add(x)
         });
         self.write_byte(checksum)?;
-        self.expect_byte(ACK, "Expected ACK after sending packet")?;
-        (self.progress)(Progress::Packet(pkt_num));
-
-        self.packet = self.packet.wrapping_add(1);
-        Ok(128)
+        /*self.expect_byte(ACK, "Expected ACK after sending packet")?;
+        */
+        let res = self.read_byte(true)?;
+        match res {
+            ACK => {
+                (self.progress)(Progress::Packet(pkt_num));
+                self.packet = self.packet.wrapping_add(1);
+                Ok(128)
+            },
+            NAK => {
+                Err(io::Error::new(io::ErrorKind::Interrupted, "Checksum is incorrect"))
+            },
+            _ => {
+                Err(io::Error::new(io::ErrorKind::InvalidData, "We was expecting for NAK or ACK"))
+            }
+        }
       }
     }
 

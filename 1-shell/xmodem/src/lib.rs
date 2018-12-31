@@ -248,7 +248,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
         match header {
             SOH => {
                 let mut checksum: u32 = 0;
-                let pkt_num = self.packet;
+                let pkt_num:u8 = self.packet;
                 self.expect_byte(pkt_num, "received wrong packet number")?;    
                 self.expect_byte(255-pkt_num, "Packet number and its complement missmatch")?;
                 //read 128 bytes
@@ -269,9 +269,9 @@ impl<T: io::Read + io::Write> Xmodem<T> {
             },
             EOT => {
                 self.write_byte(NAK)?;
-                match self.expect_byte_or_cancel(EOT, "Not EOT byte") {
+                match self.expect_byte(EOT, "Not EOT byte") {
                   Ok(EOT) => {
-                    self.write_byte(CAN)?;
+                    self.write_byte(ACK)?;
                     return Ok(0);
                   },
                   _ => {
@@ -324,7 +324,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
         (self.progress)(Progress::Waiting);
         self.expect_byte_or_cancel(NAK, "expected NAK")?;
         self.started = true;
-        (self.progress)(Progress::Started);
+        //(self.progress)(Progress::Started);
       }
 
       if buf.len() == 0 {

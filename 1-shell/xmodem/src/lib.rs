@@ -249,25 +249,22 @@ impl<T: io::Read + io::Write> Xmodem<T> {
             SOH => {
                 let mut checksum: u32 = 0;
                 let pkt_num = self.packet;
-                self.expect_byte_or_cancel(pkt_num, "received wrong packet number")?;    
-                self.expect_byte_or_cancel(255-pkt_num, "Packet number and its complement missmatch")?;
+                self.expect_byte(pkt_num, "received wrong packet number")?;    
+                self.expect_byte(255-pkt_num, "Packet number and its complement missmatch")?;
                 //read 128 bytes
+                self.inner.read_exact(buf)?;
                 for idx in 0..128 {
-                  buf[idx] = self.read_byte(false)?;          
                   checksum += buf[idx] as u32;
                 }
                 checksum %= 256;
-                match self.expect_byte(checksum as u8, "Checksum was incorrect") {
-                  Ok(some_val) => {
+                if checksum as u8 == self.read_byte(false)? {
                     self.packet = self.packet.wrapping_add(1);
                     self.write_byte(ACK)?;  
                     (self.progress)(Progress::Packet(pkt_num));
                     return Ok(128);
-                  },
-                  _ => {
+                } else {
                     self.write_byte(NAK)?; 
                     return Err(io::Error::new(io::ErrorKind::Interrupted, "Checksum was incorrect"));
-                  }
                 }
             },
             EOT => {
@@ -275,7 +272,6 @@ impl<T: io::Read + io::Write> Xmodem<T> {
                 match self.expect_byte_or_cancel(EOT, "Not EOT byte") {
                   Ok(EOT) => {
                     self.write_byte(CAN)?;
-                    self.started = false;
                     return Ok(0);
                   },
                   _ => {
@@ -284,8 +280,6 @@ impl<T: io::Read + io::Write> Xmodem<T> {
                 };
             },
             _ => {
-                self.write_byte(CAN)?;
-                self.started = false;
                 return Err(io::Error::new(io::ErrorKind::InvalidData, "The first byte must be EOT or SOH"));
             },
         };
@@ -340,31 +334,31 @@ impl<T: io::Read + io::Write> Xmodem<T> {
         self.write_byte(EOT)?;
         self.expect_byte_or_cancel(ACK, "Expected for ACK byte")?;
         return Ok(0);
+      } else {
+        let pkt_num = self.packet;
+        self.write_byte(SOH)?;
+        self.write_byte(pkt_num)?;
+        self.write_byte(255 - pkt_num)?;
+        self.inner.write(buf)?;
+        //send checksum pending
+        let checksum: u8 = buf.iter().fold(0, |acc, &x| {
+          acc.wrapping_add(x)
+        });
+        self.write_byte(checksum)?;
+        match self.read_byte(false) {
+          Ok(ACK) => {
+            self.packet.wrapping_add(1u8);
+            (self.progress)(Progress::Packet(pkt_num));
+            return Ok(128);
+          },
+          Ok(NAK) => {
+            return Err(io::Error::new(io::ErrorKind::Interrupted, "Checksum is incorrect"));
+          },
+          _ => {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "We was expecting for NAK or ACK"));
+          }
+        } 
       }
-
-      let pkt_num = self.packet;
-      self.write_byte(SOH)?;
-      self.write_byte(pkt_num)?;
-      self.write_byte(255 - pkt_num)?;
-      self.inner.write(&buf[0 .. 128])?;
-      //send checksum pending
-      let checksum: u8 = buf.iter().fold(0, |acc, &x| {
-        acc.wrapping_add(x)
-      });
-      self.write_byte(checksum)?;
-      match self.read_byte(false) {
-        Ok(ACK) => {
-          self.packet.wrapping_add(1u8);
-          (self.progress)(Progress::Packet(pkt_num));
-          return Ok(128);
-        },
-        Ok(NAK) => {
-          return Err(io::Error::new(io::ErrorKind::Interrupted, "Checksum is incorrect"));
-        },
-        _ => {
-          return Err(io::Error::new(io::ErrorKind::InvalidData, "We was expecting for NAK or ACK"));
-        }
-      } 
     }
 
     /// Flush this output stream, ensuring that all intermediately buffered

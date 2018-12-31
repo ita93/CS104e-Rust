@@ -236,7 +236,7 @@ impl<T: io::Read + io::Write> Xmodem<T> {
     /// An error of kind `UnexpectedEof` is returned if `buf.len() < 128`.
     pub fn read_packet(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         // If receiver wasn't start, We would start 
-        if (buf.len() < 128) {
+        if buf.len() != 128 {
             return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "Need to be at least 128"));
         }
         if !self.started {
@@ -244,24 +244,49 @@ impl<T: io::Read + io::Write> Xmodem<T> {
             self.started = true;
             (self.progress)(Progress::Started);
         };
-        let mut header: u8;
-        header = self.read_byte(true)?;
+        let header = self.read_byte(true)?;
         match header {
             SOH => {
-                
+                let mut checksum: u32 = 0;
+                let pkt_num = self.packet;
+                self.expect_byte_or_cancel(pkt_num, "received wrong packet number")?;    
+                self.expect_byte_or_cancel(255-pkt_num, "Packet number and its complement missmatch")?;
+                //read 128 bytes
+                for idx in 0..128 {
+                  buf[idx] = self.read_byte(false)?;          
+                  checksum += buf[idx] as u32;
+                }
+                checksum %= 256;
+                match self.expect_byte(checksum as u8, "Checksum was incorrect") {
+                  Ok(some_nb) => {
+                    self.packet = self.packet.wrapping_add(1);
+                    self.write_byte(ACK)?;  
+                    (self.progress)(Progress::Packet(128));
+                    return Ok(128);
+                  },
+                  _ => {
+                    self.write_byte(NAK)?; 
+                    return Err(io::Error::new(io::ErrorKind::Interrupted, "Checksum was incorrect"));
+                  }
+                }
             },
             EOT => {
                 self.write_byte(NAK)?;
-                let res_header = self.read_byte(true)?;
-                if res_header == EOT {
-                    self.write_byte(ACK)?;
-                }
-                self.write_byte(CAN)?;
-                self.started = false;
+                match self.expect_byte_or_cancel(EOT, "Not EOT byte") {
+                  Ok(some_val) => {
+                    self.write_byte(CAN)?;
+                    self.started = false;
+                    return Ok(0);
+                  },
+                  _ => {
+                      return Err(io::Error::new(io::ErrorKind::InvalidData, "Waitting for End of transfer"));
+                  }
+                };
             },
             _ => {
                 self.write_byte(CAN)?;
                 self.started = false;
+                return Err(io::Error::new(io::ErrorKind::InvalidData, "The first byte must be EOT or SOH"));
             },
         };
     }

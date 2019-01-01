@@ -28,13 +28,6 @@ const GPIO_FSEL0: *mut u32 = (GPIO_BASE) as *mut u32;
 const GPIO_SET0: *mut u32 = (GPIO_BASE + 0x1C) as *mut u32;
 const GPIO_CLR0: *mut u32 = (GPIO_BASE + 0x28) as *mut u32;
 
-#[inline(never)]
-fn spin_sleep_ms(ms: usize) {
-    for _ in 0..(ms * 6000) {
-        unsafe { asm!("nop" :::: "volatile"); }
-    }
-}
-
 pub struct Gpio {
     pin: usize,
 }
@@ -101,8 +94,8 @@ pub unsafe extern "C" fn kmain() {
     // Continuously set and clear GPIO 16.
     loop {
         gpio16.set();
-        spin_sleep_ms(10);
+        pi::timer::spin_sleep_ms(10);
         gpio16.clear();
-        spin_sleep_ms(100);
+        pi::timer::spin_sleep_ms(10);
     }
 }

@@ -5,6 +5,7 @@ extern crate xmodem;
 
 use std::path::PathBuf;
 use std::time::Duration;
+use std::io::Write;
 
 use structopt::StructOpt;
 use serial::core::{CharSize, BaudRate, StopBits, FlowControl, SerialDevice, SerialPortSettings};
@@ -53,6 +54,35 @@ fn main() {
 
     let opt = Opt::from_args();
     let mut serial = serial::open(&opt.tty_path).expect("path points to invalid TTY");
+    let mut settings = serial.read_settings().expect("Failed to load settings");
+    settings.set_baud_rate(opt.baud_rate).expect("Cannot set baudrate");
+    settings.set_char_size(opt.char_width);
+    settings.set_flow_control(opt.flow_control);
+    settings.set_stop_bits(opt.stop_bits);
+    serial.write_settings(&settings).expect("Failed to overwrite serial settings");
+    serial.set_timeout(Duration::from_secs(opt.timeout)).expect("Invalid timeout");
+    let mut reader:Box<io::Read> = match opt.input {
+        Some(path) => {
+            let file = File::open(path).expect("Failed to open input file");
+            Box::new(BufReader::new(file))
+        },
+        _ => {
+            Box::new(BufReader::new(io::stdin()))
+        },
+    };
 
-    // FIXME: Implement the `ttywrite` utility.
+    if opt.raw {
+        let bytes = io::copy(&mut reader, &mut serial).expect("Write failed");
+    } else {
+        let bytes = Xmodem::transmit_with_progress(reader, serial, |progress| {
+            if let Progress::Packet(_) = progress {
+                println!(".");
+                io::stdout().flush().unwrap();
+            } else if let Progress::Waiting = progress {
+                println!("Ready");
+            } else {
+                assert!(false);
+            }
+        }).expect("Write failed");
+    }
 }

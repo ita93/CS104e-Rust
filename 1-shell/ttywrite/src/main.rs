@@ -61,6 +61,9 @@ fn main() {
     settings.set_stop_bits(opt.stop_bits);
     serial.write_settings(&settings).expect("Failed to overwrite serial settings");
     serial.set_timeout(Duration::from_secs(opt.timeout)).expect("Invalid timeout");
+    //Why Box here?
+    //Ans: When you want to own a value and you care only that it’s a type that implements a particular
+    //trait rather than being of a specific type. io::Read is our trait here.
     let mut reader:Box<io::Read> = match opt.input {
         Some(path) => {
             let file = File::open(path).expect("Failed to open input file");

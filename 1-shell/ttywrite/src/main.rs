@@ -75,9 +75,9 @@ fn main() {
     };
 
     if opt.raw {
-        let bytes = io::copy(&mut reader, &mut serial).expect("Write failed");
+            io::copy(&mut reader, &mut serial).expect("Write failed");
     } else {
-        let bytes = Xmodem::transmit_with_progress(reader, serial, |progress| {
+            Xmodem::transmit_with_progress(reader, serial, |progress| {
             if let Progress::Packet(_) = progress {
                 println!(".");
                 io::stdout().flush().unwrap();

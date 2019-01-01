@@ -46,7 +46,7 @@ pub fn current_time() -> u64 {
 pub fn spin_sleep_us(us: u64) {
     let tm = Timer::new();
     let target = tm.read() + us;
-    while tm.read() < target {
+    while tm.read() <= target {
         //do nothing
     }
 }

@@ -23,7 +23,18 @@ enum LsrStatus {
 #[repr(C)]
 #[allow(non_snake_case)]
 struct Registers {
-    // FIXME: Declare the "MU" registers from page 8.
+  // FIXME: Declare the "MU" registers from page 8.
+  AUX_MU_IO_REG: Volatile<u32>,
+  AUX_MU_IER_REG: Volatile<u32>,
+  AUX_MU_IIR_REG: Volatile<u32>,
+  AUX_MU_LCR_REG: Volatile<u32>,
+  AUX_MU_MCR_REG: Volatile<u32>,
+  AUX_MU_LSR_REG: ReadVolatile<u32>,
+  AUX_MU_MSR_REG: ReadVolatile<u32>,
+  AUX_MU_SCRATCH: Volatile<u32>,
+  AUX_MU_CNTL_REG: Volatile<u32>,
+  AUX_MU_STAT_REG: ReadVolatile<u32>,
+  AUX_MU_BAUD_REG: Volatile<u32>,
 }
 
 /// The Raspberry Pi's "mini UART".
@@ -48,12 +59,13 @@ impl MiniUart {
         };
 
         // FIXME: Implement remaining mini UART initialization.
+        //?: write to ENABLES register?
         unimplemented!()
     }
 
     /// Set the read timeout to `milliseconds` milliseconds.
     pub fn set_read_timeout(&mut self, milliseconds: u32) {
-        unimplemented!()
+      self.timeout = Some(milliseconds);
     }
 
     /// Write the byte `byte`. This method blocks until there is space available

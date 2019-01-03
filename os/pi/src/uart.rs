@@ -148,6 +148,7 @@ impl fmt::Write for MiniUart {
         for &byte in string_in_bytes {
             if byte == b'\n' {
                 self.write_byte(b'\r');
+                self.write_byte(b'\n');
             }
             self.write_byte(byte);
         }

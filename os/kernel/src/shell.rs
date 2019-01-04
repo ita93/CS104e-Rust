@@ -36,12 +36,15 @@ impl<'a> Command<'a> {
 
     /// Returns this command's path. This is equivalent to the first argument.
     fn path(&self) -> &str {
-        unimplemented!()
+      sel.args.as_slice[0]
     }
 }
 
 /// Starts a shell using `prefix` as the prefix for each line. This function
 /// never returns: it is perpetually in a shell loop.
 pub fn shell(prefix: &str) -> ! {
-    unimplemented!()
+  loop {
+    //print prefix 
+    //run console read, It will block the loop until new data arrives
+  }
 }

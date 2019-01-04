@@ -1,6 +1,9 @@
 use stack_vec::StackVec;
 use console::{kprint, kprintln, CONSOLE};
 
+use std::str;
+use std::io::Write;
+
 /// Error type for `Command` parse failures.
 #[derive(Debug)]
 enum Error {
@@ -36,7 +39,7 @@ impl<'a> Command<'a> {
 
     /// Returns this command's path. This is equivalent to the first argument.
     fn path(&self) -> &str {
-      sel.args.as_slice[0]
+      self.args[0]
     }
 }
 
@@ -51,7 +54,7 @@ pub fn shell(prefix: &str) -> ! {
     //print prefix 
     //run console read, It will block the loop until new data arrives
     let mut buf_storage = [0u8; 512];
-    let mut buf = StackVec::new(&mut buf_strorage);
+    let mut buf = StackVec::new(&mut buf_storage);
     kprint!("{}", prefix);
 
     //Put in aloop
@@ -73,12 +76,13 @@ pub fn shell(prefix: &str) -> ! {
           Err(Error::TooManyArgs) => {
             kprintln!("error: too many arguments");
           },
-          Err(Error:Empty) => {
-          },
+          Err(Error::Empty) => {
+          }
           Ok(command) => {
             //excute command
           }
         }
+        break;
       } else {
         let mut console = CONSOLE.lock();
         if byte == BSKEY || byte == DELKEY {

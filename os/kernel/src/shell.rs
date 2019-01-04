@@ -46,5 +46,47 @@ pub fn shell(prefix: &str) -> ! {
   loop {
     //print prefix 
     //run console read, It will block the loop until new data arrives
+    let mut buf_storage = [0u8; 512];
+    let mut buf = StackVec::new(&mut buf_strorage);
+    kprint!("{}", prefix);
+  
+    loop {
+      let byte = CONSOLE.lock().read_byte();
+
+      if byte == b'\r' || byte == b'\n' {
+        let mut command_storage: [&str; 64] = [""; 64];
+        let result = Command::parse(str::from_utf8(buf.into_slice()).unwrap(),
+                                    &mut command_storage);
+        kprint!("\n");
+        
+        match result {
+          Err(Error::TooManyArgs) => {
+            kprintln!("error: too many arguments");
+          },
+          Err(Error:Empty) => {
+          },
+          Ok(command) => {
+            //excute command
+          }
+        }
+      } else {
+        let mut console = CONSOLE.lock();
+        if byte == BACKSPACE || byte == DELETE {
+          if buf.pop() == None {
+            console.write_byte(BELL);
+          } else {
+            console.write(&[BACKSPACE, b' ', BACKSPACE]).expect("Write");
+          }
+        } else if byte < 32 || byte == 255 {
+          console.write_byte(BELL);
+        } else {
+          if buf.push(byte).is_err() {
+            console.write_byte(BELL);
+          } else {
+            console.write_byte(byte);
+          }
+        }
+      }
+    }
   }
 }

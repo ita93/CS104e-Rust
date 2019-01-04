@@ -40,6 +40,10 @@ impl<'a> Command<'a> {
     }
 }
 
+const BELLSOUND: u8 = 7;
+const BSKEY: u8 = 8;
+const DELKEY: u8 = 127;
+
 /// Starts a shell using `prefix` as the prefix for each line. This function
 /// never returns: it is perpetually in a shell loop.
 pub fn shell(prefix: &str) -> ! {
@@ -71,17 +75,17 @@ pub fn shell(prefix: &str) -> ! {
         }
       } else {
         let mut console = CONSOLE.lock();
-        if byte == BACKSPACE || byte == DELETE {
+        if byte == BSKEY || byte == DELKEY {
           if buf.pop() == None {
-            console.write_byte(BELL);
+            console.write_byte(BELLSOUND);
           } else {
-            console.write(&[BACKSPACE, b' ', BACKSPACE]).expect("Write");
+            console.write(&[BSKEY, b' ', BSKEY]).expect("Write");
           }
         } else if byte < 32 || byte == 255 {
-          console.write_byte(BELL);
+          console.write_byte(BELLSOUND);
         } else {
           if buf.push(byte).is_err() {
-            console.write_byte(BELL);
+            console.write_byte(BELLSOUND);
           } else {
             console.write_byte(byte);
           }

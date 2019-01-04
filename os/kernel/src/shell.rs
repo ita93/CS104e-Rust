@@ -53,7 +53,13 @@ pub fn shell(prefix: &str) -> ! {
     let mut buf_storage = [0u8; 512];
     let mut buf = StackVec::new(&mut buf_strorage);
     kprint!("{}", prefix);
-  
+
+    //Put in aloop
+    /*
+    * Read input byte to byte and push read byte to stack.
+    * If input byte is DEL, we pop one from our stack.
+    * If input byte is new line character, we parse command and excute it.
+    */ 
     loop {
       let byte = CONSOLE.lock().read_byte();
 

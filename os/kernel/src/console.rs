@@ -19,15 +19,13 @@ impl Console {
     /// Initializes the console if it's not already initialized.
     #[inline]
     fn initialize(&mut self) {
-        self.inner = Some(MiniUart::new());
+        self.inner = Some(MiniUart::new())
     }
 
     /// Returns a mutable borrow to the inner `MiniUart`, initializing it as
     /// needed.
     fn inner(&mut self) -> &mut MiniUart {
-        if let Some(ref mut my_inner) = self.inner {
-            //do nothing
-        } else {
+        if self.inner.is_none(){
             self.initialize();
         }
         self.inner.as_mut().unwrap()
@@ -35,34 +33,34 @@ impl Console {
 
     /// Reads a byte from the UART device, blocking until a byte is available.
     pub fn read_byte(&mut self) -> u8 {
-        self.read_byte()
+        self.inner().read_byte()
     }
 
     /// Writes the byte `byte` to the UART device.
     pub fn write_byte(&mut self, byte: u8) {
-        self.write_byte(byte)
+        self.inner().write_byte(byte)
     }
 }
 
 impl io::Read for Console {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.read(buf)
+        self.inner().read(buf)
     }
 }
 
 impl io::Write for Console {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.write(buf)
+        self.inner().write(buf)
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        Ok(())
+        self.inner().flush()
     }
 }
 
 impl fmt::Write for Console {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.write_str(s)
+        self.inner().write_str(s)
     }
 }
 

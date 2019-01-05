@@ -47,9 +47,12 @@ const BELLSOUND: u8 = 7;
 const BSKEY: u8 = 8;
 const DELKEY: u8 = 127;
 
+const WELCOME: &str = r#"ONI OS"#;
+
 /// Starts a shell using `prefix` as the prefix for each line. This function
 /// never returns: it is perpetually in a shell loop.
-pub fn shell(prefix: &str) -> ! {
+pub fn shell(prefix: &str) -> ! {  
+  kprintln!("{}", WELCOME);
   loop {
     //print prefix 
     //run console read, It will block the loop until new data arrives
@@ -58,31 +61,33 @@ pub fn shell(prefix: &str) -> ! {
     kprint!("{}", prefix);
 
     //Put in aloop
-    /*
-    * Read input byte to byte and push read byte to stack.
+    
+    /* Read input byte to byte and push read byte to stack.
     * If input byte is DEL, we pop one from our stack.
     * If input byte is new line character, we parse command and excute it.
-    */ 
+    */
     loop {
       let byte = CONSOLE.lock().read_byte();
 
       if byte == b'\r' || byte == b'\n' {
+        let mut console = CONSOLE.lock();
         let mut command_storage: [&str; 64] = [""; 64];
         let result = Command::parse(str::from_utf8(buf.into_slice()).unwrap(),
                                     &mut command_storage);
-        kprint!("\n");
+        console.write_byte(b'\n');
+        console.write_byte(b'\r');
         
         match result {
           Err(Error::TooManyArgs) => {
-            kprintln!("error: too many arguments");
+            console.write(b"error: too many arguments\n");
           },
           Err(Error::Empty) => {
           }
           Ok(command) => {
-            //excute command
+            excute(&command);
           }
         }
-        break;
+        break
       } else {
         let mut console = CONSOLE.lock();
         if byte == BSKEY || byte == DELKEY {
@@ -101,6 +106,17 @@ pub fn shell(prefix: &str) -> ! {
           }
         }
       }
+    }
+  }
+}
+
+fn excute(cmd: &Command) {
+  match cmd.args[0] {
+    "echo" => {
+      kprint!("This is an echo command");
+    }
+    _ => {
+      kprint!("error: command not found\n");
     }
   }
 }

@@ -70,16 +70,15 @@ pub fn shell(prefix: &str) -> ! {
       let byte = CONSOLE.lock().read_byte();
 
       if byte == b'\r' || byte == b'\n' {
-        let mut console = CONSOLE.lock();
         let mut command_storage: [&str; 64] = [""; 64];
         let result = Command::parse(str::from_utf8(buf.into_slice()).unwrap(),
                                     &mut command_storage);
-        console.write_byte(b'\n');
-        console.write_byte(b'\r');
+        CONSOLE.lock().write_byte(b'\n');
+        CONSOLE.lock().write_byte(b'\r');
         
         match result {
           Err(Error::TooManyArgs) => {
-            console.write(b"error: too many arguments\n");
+            CONSOLE.lock().write(b"error: too many arguments\n");
           },
           Err(Error::Empty) => {
           }
@@ -113,7 +112,7 @@ pub fn shell(prefix: &str) -> ! {
 fn excute(cmd: &Command) {
   match cmd.args[0] {
     "echo" => {
-      kprint!("This is an echo command");
+      kprint!("This is an echo command\n");
     }
     _ => {
       kprint!("error: command not found\n");

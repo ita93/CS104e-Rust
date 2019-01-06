@@ -10,6 +10,7 @@ mod tests;
 use mutex::Mutex;
 use alloc::heap::{Alloc, AllocErr, Layout};
 use std::cmp::max;
+extern crate pi;
 
 /// Thread-safe (locking) wrapper around a particular memory allocator.
 #[derive(Debug)]
@@ -88,6 +89,13 @@ extern "C" {
 /// This function is expected to return `Some` under all normal cirumstances.
 fn memory_map() -> Option<(usize, usize)> {
     let binary_end = unsafe { (&_end as *const u8) as u32 };
-
-    unimplemented!("memory map fetch")
+    let atags = pi::atags::Atags::get();
+    for x in atags {
+        if x.mem().is_some() {
+            let cur = x.mem().unwrap();
+            let end_addr = cur.start + cur.size;
+            return Some((binary_end as usize, end_addr as usize))
+        }
+    }
+    None
 }

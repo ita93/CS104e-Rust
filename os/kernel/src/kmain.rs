@@ -41,6 +41,10 @@ pub extern "C" fn kmain() {
     for x in my_atags {
         kprint!("{:#?}\n", x);
     }
-    //ALLOCATOR.initialize();
-    //shell::shell(">");
+    ALLOCATOR.initialize();
+    let mut v = vec![];
+    for i in 0..1000 {
+        v.push(i);
+        kprint!("{:?}\n", v);
+    }
 }

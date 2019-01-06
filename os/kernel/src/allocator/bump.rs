@@ -13,7 +13,10 @@ impl Allocator {
     /// Creates a new bump allocator that will allocate memory from the region
     /// starting at address `start` and ending at address `end`.
     pub fn new(start: usize, end: usize) -> Allocator {
-        unimplemented!("bump allocator")
+        Allocator{
+            current: start,
+            end
+        }
     }
 
     /// Allocates memory. Returns a pointer meeting the size and alignment
@@ -37,7 +40,17 @@ impl Allocator {
     /// (`AllocError::Exhausted`) or `layout` does not meet this allocator's
     /// size or alignment constraints (`AllocError::Unsupported`).
     pub fn alloc(&mut self, layout: Layout) -> Result<*mut u8, AllocErr> {
-        unimplemented!("bump allocation")
+        //Check align and size
+        if layout.size() < 0 || layout.align() & (layout.align() - 1) !=0 || layout.align() == 0 {
+            return Err(AllocErr::Unsupported{details: "Align and size are invalid"});
+        }
+        let act_size = align_up(layout.size(), layout.align());
+        if (self.current + act_size) > self.end {
+            return Err(AllocErr::Exhausted{request: layout});
+        }
+        let return_addr = align_up(self.current, layout.align());
+        self.current = return_addr + act_size;
+        Ok(return_addr as *mut u8)
     }
 
     /// Deallocates the memory referenced by `ptr`.
@@ -54,6 +67,12 @@ impl Allocator {
     /// Parameters not meeting these conditions may result in undefined
     /// behavior.
     pub fn dealloc(&mut self, _ptr: *mut u8, _layout: Layout) {
-        unimplemented!("bump deallocation")
+        if align_up(_ptr as usize, _layout.align()) != (_ptr as usize) {
+            panic!("The align was not match");
+        }
+
+        if _ptr as usize > self.current || _ptr as usize > self.end {
+            panic!("Out of bound");
+        }
     }
 }

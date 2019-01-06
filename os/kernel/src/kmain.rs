@@ -36,6 +36,11 @@ pub static FILE_SYSTEM: FileSystem = FileSystem::uninitialized();
 #[no_mangle]
 #[cfg(not(test))]
 pub extern "C" fn kmain() {
-    ALLOCATOR.initialize();
-    shell::shell(">");
+    let my_atags = pi::atags::Atags::get();
+    use console::kprint;
+    for x in my_atags {
+        kprint!("{:#?}\n", x);
+    }
+    //ALLOCATOR.initialize();
+    //shell::shell(">");
 }

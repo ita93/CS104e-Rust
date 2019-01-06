@@ -1,6 +1,8 @@
 use atags::raw;
 
 pub use atags::raw::{Core, Mem};
+use core::slice;
+use core::str;
 
 /// An ATAG.
 #[derive(Debug, Copy, Clone)]
@@ -46,17 +48,28 @@ impl Atag {
 // for `Atag`. These implementations should be used by the `From<&raw::Atag> for
 // Atag` implementation below.
 
+//converter: similar to String::from(str);
 impl<'a> From<&'a raw::Atag> for Atag {
     fn from(atag: &raw::Atag) -> Atag {
         // FIXME: Complete the implementation below.
 
         unsafe {
             match (atag.tag, &atag.kind) {
-                (raw::Atag::CORE, &raw::Kind { core }) => unimplemented!(),
-                (raw::Atag::MEM, &raw::Kind { mem }) => unimplemented!(),
-                (raw::Atag::CMDLINE, &raw::Kind { ref cmd }) => unimplemented!(),
-                (raw::Atag::NONE, _) => unimplemented!(),
-                (id, _) => unimplemented!()
+                (raw::Atag::CORE, &raw::Kind { core }) => Atag::Core(core),
+                (raw::Atag::MEM, &raw::Kind { mem }) => Atag::Mem(mem),
+                (raw::Atag::CMDLINE, &raw::Kind { ref cmd }) => {
+                    //cmd is the pointer to the first byte of string
+                    let mut len = 0;
+                    let mut addr = &cmd.cmd as *const u8;
+                    while *addr.add(len) != 0 {
+                        len += 1;
+                    }
+                    let slice = slice::from_raw_parts(addr, len);
+                    let cmd_str = str::from_utf8_unchecked(slice);
+                    Atag::Cmd(cmd_str)
+                },
+                (raw::Atag::NONE, _) => Atag::None,
+                (id, _) => Atag::Unknown(id)
             }
         }
     }

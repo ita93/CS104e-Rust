@@ -15,26 +15,29 @@ pub enum Atag {
 impl Atag {
     /// Returns `Some` if this is a `Core` ATAG. Otherwise returns `None`.
     pub fn core(self) -> Option<Core> {
-        match self {
-            Atag::Core(value) => Some(value),
-            _ => None
+        if let Atag::Core(value) = self {
+            Some(value)
+        } else {
+            None
         }
     }
 
     /// Returns `Some` if this is a `Mem` ATAG. Otherwise returns `None`.
     pub fn mem(self) -> Option<Mem> {
-        match self {
-            Atag::Mem(value) => Some(value),
-            _ => None
+        if let Atag::Mem(value) = self {
+            Some(value)
+        } else {
+            None
         }
     }
 
     /// Returns `Some` with the command line string if this is a `Cmd` ATAG.
     /// Otherwise returns `None`.
     pub fn cmd(self) -> Option<&'static str> {
-        match self{
-            Atag::Cmd(value) => Some(value),
-            _ => None
+        if let Atag::Cmd(value) = self {
+            Some(value)
+        } else {
+            None
         }
     }
 }

@@ -1,0 +1,120 @@
+/******* RESETS */
+body {
+  line-height: 1.3;
+}
+
+/******* DISPLAY */
+
+*, *::before, *::after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing:    border-box;
+  box-sizing:         border-box;
+}
+
+.gwd-lightbox {
+  border: none !important;
+}
+
+/******* STYLING */
+
+/* Shadows */
+.box-shadow {
+  -moz-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  -webkit-box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.box-shadow-item {
+  -moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.box-shadow-cta {
+  -moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.box-shadow-details {
+  -moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.text-shadow {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+
+/******* TRANSITIONS */
+
+.transition-opacity {
+  -moz-transition: opacity, 0.3s, ease;
+  transition: opacity, 0.3s, ease;
+}
+.transition-opacity-fast {
+  -moz-transition: opacity, 0.2s, ease;
+  transition: opacity, 0.2s, ease;
+}
+
+
+/*Other*/
+.font-family-css{
+  font-family: 'Lato', sans-serif; 
+  /*Note: When specifying a web font in a CSS style, always list at least one fallback web-safe font in order to avoid unexpected behaviors. 
+  In particular, add a CSS generic font name like serif or sans-serif to the end of the list, so the browser can fall back to its default fonts if need be.
+   /*for Japanese templates > "ヒラギノ角ゴ Pro W3","Hiragino Kaku Gothic Pro","メイリオ","MS PGothic",Verdana,Helvetica,sans-serif;*/
+}
+
+/****** Navigation Dots for square ********/
+#gallerynavigation-items .button-container .button {
+  width: 20px;
+  height: 20px;
+}
+#gallerynavigation-items .button-container .button .frame-dot {
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+  border: 1px solid #444;
+  box-shadow:0 0 6px rgba(0,0,0,0)
+}
+
+#gallerynavigation-items .button-container .button.active .frame-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #000000;
+  border: 1px solid #444;
+
+}
+
+#gallerynavigation-items .button-container .button:hover .frame-dot {
+ width: 12px;
+  height: 12px;
+  border: 1px solid #444;
+  background-color: #000000;
+
+}
+
+/****** Navigation Dots for mobile 320x100 ********/
+
+/*#gallerynavigation-items-320x100 .button-container .button .frame-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #716c6c;
+  box-shadow:0 0 6px rgba(0,0,0,0)
+}
+
+#gallerynavigation-items-320x100 .button-container .button.active .frame-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #000000;
+
+}*/
+
+#gallerynavigation-items-320x100 .button-container .button:hover .frame-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #000000;
+
+}

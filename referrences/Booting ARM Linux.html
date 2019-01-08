@@ -1,0 +1,684 @@
+
+<!-- saved from url=(0074)http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e428 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+      
+   <title>Booting ARM Linux</title><meta name="generator" content="DocBook XSL Stylesheets V1.64.1"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="article" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="simtec_able_set"></a>Booting ARM Linux</h2></div><div><div class="author"><h3 class="author"><span class="firstname">Vincent</span> <span class="surname">Sanders</span></h3><div class="affiliation"><div class="address"><p><tt class="email">&lt;<a href="mailto:vince@arm.linux.org.uk">vince@arm.linux.org.uk</a>&gt;</tt></p></div></div></div></div><div><p class="othercredit"><span class="contrib">Review and advice, large chunks of the ARM Linux kernel, all around good guy</span>: <span class="firstname">Russell</span> <span class="surname">King</span></p></div><div><p class="othercredit"><span class="contrib">Review, advice and numerous clarifications.</span>: <span class="firstname">Nicolas</span> <span class="surname">Pitre</span></p></div><div><p class="othercredit"><span class="contrib">Review and advice</span>: <span class="firstname">Erik</span> <span class="surname">Mouw</span>, <span class="firstname">Zwane</span> <span class="surname">Mwaikambo</span>, <span class="firstname">Jeff</span> <span class="surname">Sutherland</span>, <span class="firstname">Ralph</span> <span class="surname">Siemsen</span>, <span class="firstname">Daniel</span> <span class="surname">Silverstone</span>, <span class="firstname">Martin</span> <span class="surname">Michlmayr</span>, <span class="firstname">Michael</span> <span class="surname">Stevens</span>, <span class="firstname">Lesley</span> <span class="surname">Mitchell</span>, <span class="firstname">Matthew</span> <span class="surname">Richardson</span></p></div><div></div><div></div><div></div><div><p class="othercredit"><span class="contrib">Review and referenced information (see bibliography)</span>: <span class="surname">Wookey</span></p></div><div></div><div></div><div></div><div></div><div></div><div><p class="copyright">Copyright © 2004 Vincent Sanders</p></div><div><div class="legalnotice"><div class="itemizedlist"><ul type="disc"><li><p>This document is released under a GPL licence.</p></li><li><p>All trademarks are acknowledged.</p></li></ul></div></div></div><div><div class="legalnotice"><p>While every precaution has been taken in the preparation of this article, the publisher assumes no responsibility for errors or omissions, or for damages resulting from the use of the information contained herein.</p></div></div><div><p class="pubdate">2004-06-04</p></div><div><div class="revhistory"><table border="1" width="100%" summary="Revision history"><tbody><tr><th align="left" valign="top" colspan="3"><b>Revision History</b></th></tr><tr><td align="left">Revision 1.00</td><td align="left">10th May 2004</td><td align="left">VRS</td></tr><tr><td align="left" colspan="3">
+	  <p>Initial Release.</p>
+	</td></tr><tr><td align="left">Revision 1.10</td><td align="left">4th June 2004</td><td align="left">VRS</td></tr><tr><td align="left" colspan="3">
+	  <table class="simplelist" border="0" summary="Simple list"><tbody><tr><td>Update example code to be more complete.</td></tr><tr><td>Improve wording in places, changes suggested by <span class="firstname">Nicolas</span> <span class="surname">Pitre</span>.</td></tr><tr><td>Update <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#section_other_bootloaders" title="2. Other bootloaders">Section&nbsp;2, “Other bootloaders”</a>.</td></tr><tr><td>Update acknowledgements.</td></tr></tbody></table><p>
+	  </p>
+	</td></tr></tbody></table></div></div></div><div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e184">1. About this document</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#section_other_bootloaders">2. Other bootloaders</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e261">3. Overview</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e287">4. Configuring the system's memory</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e309">5. Loading the kernel image</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e383">6. Loading an initial RAM disk</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e416">7. Initialising a console</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e428">8. Kernel parameters</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e600">9. Obtaining the ARM Linux machine type</a></span></dt><dt><span class="section"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e612">10. Starting the kernel</a></span></dt><dt><span class="appendix"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#appendix_tag_reference">A. Tag Reference</a></span></dt><dt><span class="appendix"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#appendix_complete_example">B. Complete example</a></span></dt><dt><span class="bibliography"><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#article_bilbiography">Bibliography</a></span></dt></dl></div><div class="abstract"><p class="title"><b>Abstract</b></p><p>This document defines in clear concise terms, with
+  implementation guidance and examples, the requirements and
+  procedures for a bootloader to start an ARM Linux kernel. </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e184"></a>1.&nbsp;About this document</h2></div></div><div></div></div><p>This document describes the "new" booting
+    procedure which all version 2.4.18 and later kernels use. The
+    legacy "struct" method must <span class="emphasis"><em>not</em></span> be
+    used.</p><p>This document contains information from a wide variety of
+    sources (see the <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#article_bilbiography">Bibliography</a>) and
+    authors, you are encouraged to consult these sources for more
+    information before asking questions of the Maintainers, or on the
+    ARM Linux mailing lists. Most of these areas have been covered
+    repeatedly in the past and you are likely to be ignored if you
+    haven't done at least basic research.</p><p>Additionally it should be noted that provided the guidance
+    in this document is followed, there should be no need for an
+    implementor to understand every nuance of the assembler that
+    starts the kernel. Experience has shown on numerous occasions that
+    most booting problems are unlikely to be related to this code,
+    said code is also quite tricky and unlikely to give any insight
+    into the problem.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="section_other_bootloaders"></a>2.&nbsp;Other bootloaders</h2></div></div><div></div></div><p>Before embarking on writing a new bootloader a developer
+    should consider if one of the existing loaders is appropriate. There
+    are examples of loaders in most areas, from simple GPL loaders to
+    full blown commercial offerings. A short list is provided here but
+    the documents in the <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#article_bilbiography">Bibliography</a> offer
+    more solutions.</p><div class="table"><a name="table_bootloaders"></a><p class="title"><b>Table&nbsp;1.&nbsp;Bootloaders</b></p><table summary="Bootloaders" border="1"><colgroup><col><col><col></colgroup><thead><tr><th>Name</th><th>URL</th><th>Description</th></tr></thead><tbody><tr><td>Blob</td><td><a href="http://www.sf.net/projects/blob/" target="_top">Blob bootloader</a></td><td>GPL bootloader for SA11x0 (StrongARM) platforms.</td></tr><tr><td>Bootldr</td><td><a href="http://www.handhelds.org/sources.html" target="_top">Bootldr</a></td><td>Both GPL and non-GPL versions available, mainly used for handheld devices.</td></tr><tr><td>Redboot</td><td><a href="http://sources.redhat.com/redboot/" target="_top">Redboot</a></td><td>Redhat loader released under their eCos licence.</td></tr><tr><td>U-Boot</td><td><a href="http://sourceforge.net/projects/u-boot/" target="_top">U-Boot</a></td><td>GPL universal bootloader, provides support for several CPUs.</td></tr><tr><td>ABLE</td><td><a href="http://www.simtec.co.uk/products/SWABLE/" target="_top">ABLE bootloader</a></td><td>Commercial bootloader with comprehensive feature set</td></tr></tbody></table></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e261"></a>3.&nbsp;Overview</h2></div></div><div></div></div><p>ARM Linux cannot be started on a machine without a small
+          amount of machine specific code to initialise the system. ARM Linux
+          <span class="emphasis"><em>requires</em></span> the bootloader code to do very little,
+          although several bootloaders do provide extensive additional
+          functionality. The minimal requirements are:
+
+    </p><table class="simplelist" border="0" summary="Simple list"><tbody><tr><td>Configure the memory system.</td></tr><tr><td>Load the kernel image at the correct memory
+address.</td></tr><tr><td>Optionally load an initial RAM disk at the correct
+memory address.</td></tr><tr><td>Initialise the boot parameters to pass to the
+kernel.</td></tr><tr><td>Obtain the ARM Linux machine type</td></tr><tr><td>Enter the kernel with the appropriate register values.</td></tr></tbody></table><p>
+    </p><p>It is usually expected that the bootloader will initialise a
+    serial or video console for the kernel in addition to these basic
+    tasks. Indeed a serial port is almost considered mandatory in
+    most system configurations.</p><p>Each of these steps will be examined in the following sections.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e287"></a>4.&nbsp;Configuring the system's memory</h2></div></div><div></div></div><p>The bootloader is expected to find and initialise all RAM
+    that the kernel will use for volatile data storage in the system.
+    It performs this in a machine dependent manner. It may use
+    internal algorithms to automatically locate and size all RAM, or
+    it may use knowledge of the RAM in the machine, or any other
+    method the bootloader designer sees fit.</p><p>In all cases it should be noted that all setup is performed
+    by the bootloader. The kernel should have no knowledge of the
+    setup or configuration of the RAM within a system other than that
+    provided by the bootloader. The use of machine_fixup() within the
+    kernel is most definitely not the correct place for this. There is
+    a clear distinction between the bootloaders responsibility and the
+    kernel in this area.</p><p>The physical memory layout is passed to the kernel using the
+    <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_MEM" title="ATAG_MEM">ATAG_MEM</a> parameter. Memory does not necessarily
+    have to be completely contiguous, although the minimum number of
+    fragments is preferred. Multiple <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_MEM" title="ATAG_MEM">ATAG_MEM</a> blocks
+    allow for several memory regions. The kernel will coalesce blocks
+    passed to it if they are contiguous physical regions.</p><p>The bootloader may also manipulate the memory with the
+    kernels command line, using the 'mem=' parameter, the options for
+    this parameter are fully documented in
+    <tt class="literal">linux/Documentation/kernel-parameters.txt</tt></p><p>The kernel command line 'mem=' has the syntax
+    <tt class="literal">mem=&lt;size&gt;[KM][,@&lt;phys_offset&gt;]</tt> which allows
+    the size and physical memory location for a memory area to be
+    defined. This allows for specifying multiple discontigous memory
+    blocks at differing offsets by providing the mem= parameter multiple
+    times.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e309"></a>5.&nbsp;Loading the kernel image</h2></div></div><div></div></div><p>Kernel images generated by the kernel build process are
+    either uncompressed "Image" files or compressed zImage
+    files.</p><p>The uncompressed Image files are generally not used, as they
+    do not contain a readily identifiable magic number. The compressed
+    zImage format is almost universally used in preference.</p><p> The zImage has several benefits in addition to the magic
+    number. Typically, the decompression of the image is
+    <span class="emphasis"><em>faster</em></span> than reading from some external media.
+    The integrity of the image can be assured, as any errors will
+    result in a failed decompress. The kernel has knowledge of its
+    internal structure and state, which allows for better results than
+    a generic external compression method.</p><p>The zImage has a magic number and some useful information
+    near its beginning.
+
+
+    </p><div class="table"><a name="table_zimage_head"></a><p class="title"><b>Table&nbsp;2.&nbsp;Useful fields in zImage head code</b></p><table summary="Useful fields in zImage head code" border="1"><colgroup><col><col><col></colgroup><thead><tr><th>Offset into zImage</th><th>Value</th><th>Description</th></tr></thead><tbody><tr><td>0x24</td><td>0x016F2818</td><td>Magic number used to identify this is an ARM Linux zImage</td></tr><tr><td>0x28</td><td>start address</td><td>The address the zImage starts at</td></tr><tr><td>0x2C</td><td>end address</td><td>The address the zImage ends at</td></tr></tbody></table></div><p>
+
+
+    </p><p>The start and end offsets can be used to determine the
+    length of the compressed image (size = end - start). This is used
+    by several bootloaders to determine if any data is appended to the
+    kernel image. This data is typically used for an initial RAM disk
+    (initrd). The start address is usually 0 as the zImage code is
+    position independent.</p><p>The zImage code is Position Independent Code (PIC) so may be
+    loaded anywhere within the available address space. The maximum kernel
+    size after decompression is 4Megabytes. This is a hard limit and
+    would include the initrd if a bootpImage target was used.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>Although the zImage may be located anywhere, care should
+      be taken.  Starting a compressed kernel requires additional
+      memory for the image to be uncompressed into. This space has
+      certain constraints.</p><p>The zImage decompression code will ensure it is not going
+      to overwrite the compressed data. If the kernel detects such a
+      conflict it will uncompress the image immediately
+      <span class="emphasis"><em>after</em></span> the compressed zImage data and
+      relocate the kernel after decompression. This obviously has the
+      impact that the memory region the zImage is loaded into
+      <span class="emphasis"><em>must</em></span> have up to 4Megabytes of space after
+      it (the maximum uncompressed kernel size), i.e. placing the
+      zImage in the same 4Megabyte bank as its ZRELADDR would probably
+      not work as expected.</p></div><p>Despite the ability to place zImage anywhere within memory,
+    convention has it that it is loaded at the base of physical RAM
+    plus an offset of 0x8000 (32K). This leaves space for the parameter
+    block usually placed at offset 0x100, zero page exception vectors
+    and page tables. This convention is <span class="emphasis"><em>very</em></span>
+    common.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e383"></a>6.&nbsp;Loading an initial RAM disk</h2></div></div><div></div></div><p>An initial RAM disk is a common requirement on many systems.
+    It provides a way to have a root filesystem available without
+    access to other drivers or configurations. Full details can be
+    obtained from
+    <tt class="literal">linux/Documentation/initrd.txt</tt></p><p>There are two methods available on ARM Linux to obtain an
+    initial RAM disk. The first is a special build target bootpImage
+    which takes an initial RAM disk at <span class="emphasis"><em>build</em></span> time
+    and appends it to a zImage. This method has the benefit that it needs
+    no bootloader intervention, but requires the kernel build process to
+    have knowledge of the physical address to place the ramdisk (using
+    the INITRD_PHYS definition). The hard size limit for the
+    uncompressed kernel and initrd of 4Megabytes applies. Because of these
+    limitations this target is rarely used in practice.</p><p>The second and much more widely used method is for the
+    bootloader to place a given initial ramdisk image, obtained from
+    whatever media, into memory at a set location. This location is
+    passed to the kernel using <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_INITRD2" title="ATAG_INITRD2">ATAG_INITRD2</a> and
+    <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_RAMDISK" title="ATAG_RAMDISK">ATAG_RAMDISK</a>.</p><p>Conventionally the initrd is placed 8Megabytes from the base
+    of physical memory. Wherever it is placed there must be
+    sufficient memory after boot to decompress the initial ramdisk
+    into a real ramdisk i.e. enough memory for zImage + decompressed
+    zImage + initrd + uncompressed ramdisk. The compressed initial
+    ramdisk memory will be freed after the decompression has
+    happened. Limitations to the position of the ramdisk are:
+
+</p><table class="simplelist" border="0" summary="Simple list"><tbody><tr><td>It must lie completely within a single memory region (must not cross between areas defined by different <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_MEM" title="ATAG_MEM">ATAG_MEM</a> parameters)</td></tr><tr><td>It must be aligned to a page boundary (typically 4k)</td></tr><tr><td>It must not conflict with the memory the zImage head code uses to decompress the kernel or it <span class="emphasis"><em>will</em></span> be overwritten as no checking is performed.</td></tr></tbody></table><p>
+</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e416"></a>7.&nbsp;Initialising a console</h2></div></div><div></div></div><p>A console is highly recommended as a method to see what
+    actions the kernel is performing when initialising a system. This can
+    be any input output device with a suitable driver, the most common
+    cases are a video framebuffer driver or a serial driver. Systems
+    that ARM Linux runs on tend to almost always provide a serial
+    console port.</p><p>The bootloader should initialise and enable one serial port
+    on the target.This includes enabling any hardware power
+    management etc., to use the port.  This allows the kernel serial
+    driver to automatically detect which serial port it should use for
+    the kernel console (generally used for debugging purposes, or
+    communication with the target.)</p><p>As an alternative, the bootloader can pass the relevant
+    'console=' option to the kernel, via the command line parameter
+    specifying the port, and serial format options as described in
+
+        <tt class="literal">linux/Documentation/kernel-parameters.txt</tt>
+</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e428"></a>8.&nbsp;Kernel parameters</h2></div></div><div></div></div><p>The bootloader must pass parameters to the kernel to describe the setup it has performed, the size and shape of memory in the system and, optionally, numerous other values.</p><p>The tagged list should conform to the following constraints
+      </p><table class="simplelist" border="0" summary="Simple list"><tbody><tr><td>The list must be stored in RAM and placed in a region
+        of memory where neither the kernel decompresser nor initrd
+        manipulation will overwrite it.  The recommended placement is
+        in the first 16KiB of RAM, usually the start of physical RAM
+        plus 0x100 (which avoids zero page exception
+        vectors).</td></tr><tr><td>The physical address of the tagged list must be placed
+        in R2 on entry to the kernel, however historically this has not
+        been mandatory and the kernel has used the fixed value of
+        the start of physical RAM plus 0x100. This must
+        <span class="emphasis"><em>not</em></span> be relied upon in the
+        future.</td></tr><tr><td>The list must not extend past the 0x4000 boundary
+	where the kernel's initial translation page table is
+	created. The kernel performs no bounds checking and will
+	overwrite the parameter list if it does so.</td></tr><tr><td>The list must be aligned to a word (32 bit, 4byte)
+	boundary (if not using the recommended location)</td></tr><tr><td>The list must begin with an <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_CORE" title="ATAG_CORE">ATAG_CORE</a> and end with <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_NONE" title="ATAG_NONE">ATAG_NONE</a></td></tr><tr><td>The list must contain at least one <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_MEM" title="ATAG_MEM">ATAG_MEM</a></td></tr></tbody></table><p>
+    </p><p>Each tag in the list consists of a header containing two
+    unsigned 32 bit values, the size of the tag (in 32 bit, 4 byte
+    words) and the tag value
+
+      </p><table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_header {
+        u32 size; /* legth of tag in words including this header */
+        u32 tag;  /* tag value */
+};</pre></td></tr></tbody></table><p>
+    </p><p>Each tag header is followed by data associated with that
+    tag, excepting <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_NONE" title="ATAG_NONE">ATAG_NONE</a> which has no data and
+    <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_CORE" title="ATAG_CORE">ATAG_CORE</a> where the data is optional. The size
+    of the data is determined by the size field in header, the minimum
+    size is 2 as the headers size is included in this value. The <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_NONE" title="ATAG_NONE">ATAG_NONE</a> is unique in that its size field is set to
+    zero.</p><p>A tag may contain additional data after the mandated
+    structures provided the size is adjusted to cover the extra
+    information, this allows for future expansion and for a bootloader
+    to extend the data provided to the kernel. For example a
+    bootloader may provide additional serial number information in an
+    <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_SERIAL" title="ATAG_SERIAL">ATAG_SERIAL</a> which could them be interpreted by a
+    modified kernel.</p><p>The order of the tags in the parameter list is unimportant,
+    they may appear as many times as required although interpretation
+    of duplicate tags is tag dependant.</p><p>The data for each individual tag is described in the <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#appendix_tag_reference" title="A. Tag Reference">Appendix&nbsp;A, <i>Tag Reference</i></a> section.</p><div class="table"><a name="table_atags_list"></a><p class="title"><b>Table&nbsp;3.&nbsp;List of usable tags</b></p><table summary="List of usable tags" border="1"><colgroup><col><col><col><col></colgroup><thead><tr><th>Tag name</th><th>Value</th><th>Size</th><th>Description</th></tr></thead><tbody><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_NONE" title="ATAG_NONE">ATAG_NONE</a></td><td>0x00000000</td><td>2</td><td>Empty tag used to end list</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_CORE" title="ATAG_CORE">ATAG_CORE</a></td><td>0x54410001</td><td>5 (2 if empty)</td><td>First tag used to start list</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_MEM" title="ATAG_MEM">ATAG_MEM</a></td><td>0x54410002</td><td>4</td><td>Describes a physical area of memory</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_VIDEOTEXT" title="ATAG_VIDEOTEXT">ATAG_VIDEOTEXT</a></td><td>0x54410003</td><td>5</td><td>Describes a VGA text display</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_RAMDISK" title="ATAG_RAMDISK">ATAG_RAMDISK</a></td><td>0x54410004</td><td>5</td><td>Describes how the ramdisk will be used in kernel
+</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_INITRD2" title="ATAG_INITRD2">ATAG_INITRD2</a></td><td>0x54420005</td><td>4</td><td>Describes where the compressed ramdisk image is
+placed in memory</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_SERIAL" title="ATAG_SERIAL">ATAG_SERIAL</a></td><td>0x54410006</td><td>4</td><td>64 bit board serial number</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_REVISION" title="ATAG_REVISION">ATAG_REVISION</a></td><td>0x54410007</td><td>3</td><td>32 bit board revision number</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_VIDEOLFB" title="ATAG_VIDEOLFB">ATAG_VIDEOLFB</a></td><td>0x54410008</td><td>8</td><td>Initial values for vesafb-type framebuffers</td></tr><tr><td><a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_CMDLINE" title="ATAG_CMDLINE">ATAG_CMDLINE</a></td><td>0x54410009</td><td>2 + ((length_of_cmdline + 3) / 4)</td><td>Command line to pass to kernel </td></tr></tbody></table></div><p>For implementation purposes a structure can be defined for a tag
+      </p><table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag {
+        struct atag_header hdr;
+        union {
+                struct atag_core         core;
+                struct atag_mem          mem;
+                struct atag_videotext    videotext;
+                struct atag_ramdisk      ramdisk;
+                struct atag_initrd2      initrd2;
+                struct atag_serialnr     serialnr;
+                struct atag_revision     revision;
+                struct atag_videolfb     videolfb;
+                struct atag_cmdline      cmdline;
+        } u;
+};</pre></td></tr></tbody></table><p>Once these structures have been defined an implementation needs to create the list this can be implemented with code similar to
+</p><table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">#define tag_next(t)     ((struct tag *)((u32 *)(t) + (t)-&gt;hdr.size))
+#define tag_size(type)  ((sizeof(struct tag_header) + sizeof(struct type)) &gt;&gt; 2)
+static struct atag *params; /* used to point at the current tag */
+
+static void
+setup_core_tag(void * address,long pagesize)
+{
+    params = (struct tag *)address;         /* Initialise parameters to start at given address */
+
+    params-&gt;hdr.tag = ATAG_CORE;            /* start with the core tag */
+    params-&gt;hdr.size = tag_size(atag_core); /* size the tag */
+
+    params-&gt;u.core.flags = 1;               /* ensure read-only */
+    params-&gt;u.core.pagesize = pagesize;     /* systems pagesize (4k) */
+    params-&gt;u.core.rootdev = 0;             /* zero root device (typicaly overidden from commandline )*/
+
+    params = tag_next(params);              /* move pointer to next tag */
+}
+
+static void
+setup_mem_tag(u32_t start, u32_t len)
+{
+    params-&gt;hdr.tag = ATAG_MEM;             /* Memory tag */
+    params-&gt;hdr.size = tag_size(atag_mem);  /* size tag */
+
+    params-&gt;u.mem.start = start;            /* Start of memory area (physical address) */
+    params-&gt;u.mem.size = len;               /* Length of area */
+
+    params = tag_next(params);              /* move pointer to next tag */
+}
+
+static void
+setup_end_tag(void)
+{
+    params-&gt;hdr.tag = ATAG_NONE;            /* Empty tag ends list */
+    params-&gt;hdr.size = 0;                   /* zero length */
+}
+
+
+static void
+setup_tags(void)
+{
+    setup_core_tag(0x100, 4096);            /* standard core tag 4k pagesize */
+    setup_mem_tag(0x10000000, 0x400000);    /* 64Mb at 0x10000000 */
+    setup_mem_tag(0x18000000, 0x400000);    /* 64Mb at 0x18000000 */
+    setup_end_tag(void);                    /* end of tags */
+}</pre></td></tr></tbody></table><p>
+    </p><p>While this code fragment is complete it illustrates the
+    absolute minimal requirements for a parameter set and is intended
+    to demonstrate the concepts expressed earlier in this section.  A
+    real bootloader would probably pass additional values and would
+    probably probe for the memory actually in a system rather than
+    using fixed values. A more complete example can be found in <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#appendix_complete_example" title="B. Complete example">Appendix&nbsp;B, <i>Complete example</i></a></p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e600"></a>9.&nbsp;Obtaining the ARM Linux machine type</h2></div></div><div></div></div><p>The only additional information the bootloader needs to
+    provide is the machine type, this is a simple number
+    unique for each ARM system often referred to as a MACH_TYPE.</p><p>The machine type number is obtained via the ARM Linux
+    website <a href="http://www.arm.linux.org.uk/developer/machines/" target="_top">Machine
+    Registry</a>. A machine type should be obtained as early in a
+    projects life as possible, it has a number of ramifications for
+    the kernel port itself (machine definitions etc.) and changing
+    definitions afterwards may lead to a number of undesirable
+    issues. These values are represented by a list of defines within
+    the kernel source (linux/arch/arm/tools/mach-types)</p><p>The boot loader must obtain the machine type value by some
+    method.  Whether this is a hard coded value or an algorithm that
+    looks at the connected hardware. Implementation is completely
+    system specific and is beyond the scope of this document.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="d0e612"></a>10.&nbsp;Starting the kernel</h2></div></div><div></div></div><p>Once the bootloader has performed all the other steps it
+    must start execution of the kernel with the correct values in the
+    CPU registers.</p><p>The entry requirements are:
+    </p><table class="simplelist" border="0" summary="Simple list"><tbody><tr><td>The CPU must be in SVC (supervisor) mode with both IRQ and FIQ interrupts disabled.</td></tr><tr><td>The MMU must be <span class="emphasis"><em>off</em></span>, i.e. code running from physical RAM with no translated addressing.</td></tr><tr><td>Data cache must be <span class="emphasis"><em>off</em></span></td></tr><tr><td>Instruction cache may be either on or off</td></tr><tr><td>CPU register 0 must be 0</td></tr><tr><td>CPU register 1 must be the ARM Linux machine type</td></tr><tr><td>CPU register 2 must be the physical address of the parameter list</td></tr></tbody></table><p>
+    </p><p>The bootloader is expected to call the kernel image by
+    jumping directly to the first instruction of the kernel
+    image.</p></div><div class="appendix" lang="en"><h2 class="title" style="clear: both"><a name="appendix_tag_reference"></a>A.&nbsp;Tag Reference</h2><div class="refentry" lang="en"><a name="ATAG_CORE"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_CORE</h2><p>ATAG_CORE — Start tag used to begin list</p></div><div class="refsection" lang="en"><a name="d0e651"></a>
+	<h2>Value</h2>
+	<p>0x54410001</p>
+      </div><div class="refsection" lang="en"><a name="d0e659"></a>
+	<h2>Size</h2>
+	<p>5 (2 if no data)</p>
+      </div><div class="refsection" lang="en"><a name="d0e667"></a>
+	<h2>Structure members</h2>
+	<p>
+</p><table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_core {
+        u32 flags;              /* bit 0 = read-only */
+        u32 pagesize;           /* systems page size (usually 4k) */
+        u32 rootdev;            /* root device number */
+};</pre></td></tr></tbody></table><p>
+        </p>
+      </div><div class="refsection" lang="en"><a name="d0e678"></a>
+	<h2>Description</h2>
+
+	<p>This tag <span class="emphasis"><em>must</em></span> be used to start the
+	list, it contains the basic information any bootloader must
+	pass, a tag length of 2 indicates the tag has no structure
+	attached.</p>
+
+      </div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_NONE"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_NONE</h2><p>ATAG_NONE — Empty tag used to end list</p></div><div class="refsection" lang="en"><a name="d0e695"></a>
+	  <h2>Value</h2>
+	  <p>0x00000000</p>
+	</div><div class="refsection" lang="en"><a name="d0e703"></a>
+	  <h2>Size</h2>
+	  <p>2</p>
+	</div><div class="refsection" lang="en"><a name="d0e711"></a>
+	  <h2>Structure members</h2>
+	  <p>None</p>
+	</div><div class="refsection" lang="en"><a name="d0e719"></a>
+	  <h2>Description</h2>
+	  <p>This tag is used to indicate the list end. It is
+	  unique in that its size field in the header should be set to
+	  0 (not 2).</p>
+	</div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_MEM"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_MEM</h2><p>ATAG_MEM — Tag used to describe a physical area of memory.</p></div><div class="refsection" lang="en"><a name="d0e733"></a>
+	  <h2>Value</h2>
+	  <p>0x54410002</p>
+	</div><div class="refsection" lang="en"><a name="d0e741"></a>
+	  <h2>Size</h2>
+	  <p>4</p>
+	</div><div class="refsection" lang="en"><a name="d0e749"></a>
+	  <h2>Structure members</h2>
+	  <table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_mem {
+        u32     size;   /* size of the area */
+        u32     start;  /* physical start address */
+};</pre></td></tr></tbody></table>
+	</div><div class="refsection" lang="en"><a name="d0e758"></a>
+	  <h2>Description</h2>
+	  <p>Describes an area of physical memory the kernel is to use.</p>
+	</div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_VIDEOTEXT"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_VIDEOTEXT</h2><p>ATAG_VIDEOTEXT — Tag used to describe VGA text type displays</p></div><div class="refsection" lang="en"><a name="d0e772"></a>
+	  <h2>Value</h2>
+	  <p>0x54410003</p>
+	</div><div class="refsection" lang="en"><a name="d0e780"></a>
+	  <h2>Size</h2>
+	  <p>5</p>
+	</div><div class="refsection" lang="en"><a name="d0e788"></a>
+	  <h2>Structure members</h2>
+	  <table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_videotext {
+        u8              x;           /* width of display */
+        u8              y;           /* height of display */
+        u16             video_page;
+        u8              video_mode;
+        u8              video_cols;
+        u16             video_ega_bx;
+        u8              video_lines;
+        u8              video_isvga;
+        u16             video_points;
+};</pre></td></tr></tbody></table>
+	</div><div class="refsection" lang="en"><a name="d0e797"></a>
+	  <h2>Description</h2>
+	  <p></p>
+	</div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_RAMDISK"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_RAMDISK</h2><p>ATAG_RAMDISK — Tag describing how the ramdisk will be used by the kernel</p></div><div class="refsection" lang="en"><a name="d0e810"></a>
+	  <h2>Value</h2>
+	  <p>0x54410004</p>
+	</div><div class="refsection" lang="en"><a name="d0e818"></a>
+	  <h2>Size</h2>
+	  <p>5</p>
+	</div><div class="refsection" lang="en"><a name="d0e826"></a>
+	  <h2>Structure members</h2>
+	  <table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_ramdisk {
+        u32 flags;      /* bit 0 = load, bit 1 = prompt */
+        u32 size;       /* decompressed ramdisk size in _kilo_ bytes */
+        u32 start;      /* starting block of floppy-based RAM disk image */
+};</pre></td></tr></tbody></table>
+	</div><div class="refsection" lang="en"><a name="d0e835"></a>
+	  <h2>Description</h2>
+	  <p>Describes how the (initial) ramdisk will be configured by the kernel, specifically this allows for the bootloader to ensure the ramdisk will be large enough to take the <span class="emphasis"><em>decompressed</em></span> initial ramdisk image the bootloader is passing using <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_INITRD2" title="ATAG_INITRD2">ATAG_INITRD2</a>.</p>
+	</div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_INITRD2"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_INITRD2</h2><p>ATAG_INITRD2 — Tag describing the physical location of the compressed ramdisk image</p></div><div class="refsection" lang="en"><a name="d0e854"></a>
+	  <h2>Value</h2>
+	  <p>0x54420005</p>
+	</div><div class="refsection" lang="en"><a name="d0e862"></a>
+	  <h2>Size</h2>
+	  <p>4</p>
+	</div><div class="refsection" lang="en"><a name="d0e870"></a>
+	  <h2>Structure members</h2>
+	  <table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_initrd2 {
+        u32 start;      /* physical start address */
+        u32 size;       /* size of compressed ramdisk image in bytes */
+};</pre></td></tr></tbody></table>
+	</div><div class="refsection" lang="en"><a name="d0e879"></a>
+	  <h2>Description</h2>
+	<p>Location of a compressed ramdisk image, usually combined with an <a href="http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#ATAG_RAMDISK" title="ATAG_RAMDISK">ATAG_RAMDISK</a>. Can be used as an initial root file system with the addition of a command line parameter of 'root=/dev/ram'. This tag <span class="emphasis"><em>supersedes</em></span> the original ATAG_INITRD which used virtual addressing, this was a mistake and produced issues on some systems. All new bootloaders should use this tag in preference.</p>
+	</div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_SERIAL"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_SERIAL</h2><p>ATAG_SERIAL — Tag with 64 bit serial number of the board</p></div><div class="refsection" lang="en"><a name="d0e898"></a>
+	  <h2>Value</h2>
+	  <p>0x54410006</p>
+	</div><div class="refsection" lang="en"><a name="d0e906"></a>
+	  <h2>Size</h2>
+	  <p>4</p>
+	</div><div class="refsection" lang="en"><a name="d0e914"></a>
+	  <h2>Structure members</h2>
+	  <table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_serialnr {
+        u32 low;
+        u32 high;
+};</pre></td></tr></tbody></table>
+	</div><div class="refsection" lang="en"><a name="d0e923"></a>
+	  <h2>Description</h2>
+	  <p></p>
+	</div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_REVISION"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_REVISION</h2><p>ATAG_REVISION — Tag for the board revision</p></div><div class="refsection" lang="en"><a name="d0e936"></a>
+	  <h2>Value</h2>
+	  <p>0x54410007</p>
+	</div><div class="refsection" lang="en"><a name="d0e944"></a>
+	  <h2>Size</h2>
+	  <p>3</p>
+	</div><div class="refsection" lang="en"><a name="d0e952"></a>
+	  <h2>Structure members</h2>
+	  <table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_revision {
+        u32 rev;
+};</pre></td></tr></tbody></table>
+	</div><div class="refsection" lang="en"><a name="d0e961"></a>
+	  <h2>Description</h2>
+	  <p></p>
+	</div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_VIDEOLFB"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_VIDEOLFB</h2><p>ATAG_VIDEOLFB — Tag describing parameters for a framebuffer type display</p></div><div class="refsection" lang="en"><a name="d0e974"></a>
+	  <h2>Value</h2>
+	  <p>0x54410008</p>
+	</div><div class="refsection" lang="en"><a name="d0e982"></a>
+	  <h2>Size</h2>
+	  <p>8</p>
+	</div><div class="refsection" lang="en"><a name="d0e990"></a>
+	  <h2>Structure members</h2>
+	  <table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_videolfb {
+        u16             lfb_width;
+        u16             lfb_height;
+        u16             lfb_depth;
+        u16             lfb_linelength;
+        u32             lfb_base;
+        u32             lfb_size;
+        u8              red_size;
+        u8              red_pos;
+        u8              green_size;
+        u8              green_pos;
+        u8              blue_size;
+        u8              blue_pos;
+        u8              rsvd_size;
+        u8              rsvd_pos;
+};</pre></td></tr></tbody></table>
+	</div><div class="refsection" lang="en"><a name="d0e999"></a>
+	  <h2>Description</h2>
+	  <p></p>
+	</div></div><div class="refentry" lang="en"><div class="refentry.separator"><hr></div><a name="ATAG_CMDLINE"></a><div class="titlepage"><div></div><div></div></div><div class="refnamediv"><h2>ATAG_CMDLINE</h2><p>ATAG_CMDLINE — Tag used to pass the commandline to the kernel</p></div><div class="refsection" lang="en"><a name="d0e1012"></a>
+	  <h2>Value</h2>
+	  <p>0x54410009</p>
+	</div><div class="refsection" lang="en"><a name="d0e1020"></a>
+	  <h2>Size</h2>
+	  <p>2 + ((length_of_cmdline + 3) / 4)</p>
+	</div><div class="refsection" lang="en"><a name="d0e1028"></a>
+	  <h2>Structure members</h2>
+	  <table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">struct atag_cmdline {
+        char    cmdline[1];     /* this is the minimum size */
+};</pre></td></tr></tbody></table>
+	</div><div class="refsection" lang="en"><a name="d0e1037"></a>
+	  <h2>Description</h2>
+	  <p>Used to pass command line parameters to the
+	  kernel. The command line must be NULL terminated. The
+	  length_of_cmdline variable should include the terminator.</p>
+	</div></div></div><div class="appendix" lang="en"><h2 class="title" style="clear: both"><a name="appendix_complete_example"></a>B.&nbsp;Complete example</h2><p>This is a worked example of a simple bootloader and shows
+    all the information explained throughout this document. More code
+    would be required for a real bootloader this example is purely
+    illustrative.</p><p>The code in this example is distributed under a BSD licence,
+    it may be freely copied and used if necessary.
+</p><table border="0" bgcolor="#E0E0E0"><tbody><tr><td><pre class="programlisting">/* example.c
+ * example ARM Linux bootloader code
+ * this example is distributed under the BSD licence
+ */
+
+/* list of possible tags */
+#define ATAG_NONE       0x00000000
+#define ATAG_CORE       0x54410001
+#define ATAG_MEM        0x54410002
+#define ATAG_VIDEOTEXT  0x54410003
+#define ATAG_RAMDISK    0x54410004
+#define ATAG_INITRD2    0x54420005
+#define ATAG_SERIAL     0x54410006
+#define ATAG_REVISION   0x54410007
+#define ATAG_VIDEOLFB   0x54410008
+#define ATAG_CMDLINE    0x54410009
+
+/* structures for each atag */
+struct atag_header {
+        u32 size; /* length of tag in words including this header */
+        u32 tag;  /* tag type */
+};
+
+struct atag_core {
+        u32 flags;
+        u32 pagesize;
+        u32 rootdev;
+};
+
+struct atag_mem {
+        u32     size;
+        u32     start;
+};
+
+struct atag_videotext {
+        u8              x;
+        u8              y;
+        u16             video_page;
+        u8              video_mode;
+        u8              video_cols;
+        u16             video_ega_bx;
+        u8              video_lines;
+        u8              video_isvga;
+        u16             video_points;
+};
+
+struct atag_ramdisk {
+        u32 flags;
+        u32 size;
+        u32 start;
+};
+
+struct atag_initrd2 {
+        u32 start;
+        u32 size;
+};
+
+struct atag_serialnr {
+        u32 low;
+        u32 high;
+};
+
+struct atag_revision {
+        u32 rev;
+};
+
+struct atag_videolfb {
+        u16             lfb_width;
+        u16             lfb_height;
+        u16             lfb_depth;
+        u16             lfb_linelength;
+        u32             lfb_base;
+        u32             lfb_size;
+        u8              red_size;
+        u8              red_pos;
+        u8              green_size;
+        u8              green_pos;
+        u8              blue_size;
+        u8              blue_pos;
+        u8              rsvd_size;
+        u8              rsvd_pos;
+};
+
+struct atag_cmdline {
+        char    cmdline[1];
+};
+
+struct atag {
+        struct atag_header hdr;
+        union {
+                struct atag_core         core;
+                struct atag_mem          mem;
+                struct atag_videotext    videotext;
+                struct atag_ramdisk      ramdisk;
+                struct atag_initrd2      initrd2;
+                struct atag_serialnr     serialnr;
+                struct atag_revision     revision;
+                struct atag_videolfb     videolfb;
+                struct atag_cmdline      cmdline;
+        } u;
+};
+
+
+#define tag_next(t)     ((struct tag *)((u32 *)(t) + (t)-&gt;hdr.size))
+#define tag_size(type)  ((sizeof(struct tag_header) + sizeof(struct type)) &gt;&gt; 2)
+static struct atag *params; /* used to point at the current tag */
+
+static void
+setup_core_tag(void * address,long pagesize)
+{
+    params = (struct tag *)address;         /* Initialise parameters to start at given address */
+
+    params-&gt;hdr.tag = ATAG_CORE;            /* start with the core tag */
+    params-&gt;hdr.size = tag_size(atag_core); /* size the tag */
+
+    params-&gt;u.core.flags = 1;               /* ensure read-only */
+    params-&gt;u.core.pagesize = pagesize;     /* systems pagesize (4k) */
+    params-&gt;u.core.rootdev = 0;             /* zero root device (typicaly overidden from commandline )*/
+
+    params = tag_next(params);              /* move pointer to next tag */
+}
+
+static void
+setup_ramdisk_tag(u32_t size)
+{
+    params-&gt;hdr.tag = ATAG_RAMDISK;         /* Ramdisk tag */
+    params-&gt;hdr.size = tag_size(atag_ramdisk);  /* size tag */
+
+    params-&gt;u.ramdisk.flags = 0;            /* Load the ramdisk */
+    params-&gt;u.ramdisk.size = size;          /* Decompressed ramdisk size */
+    params-&gt;u.ramdisk.start = 0;            /* Unused */
+
+    params = tag_next(params);              /* move pointer to next tag */
+}
+
+static void
+setup_initrd2_tag(u32_t start, u32_t size)
+{
+    params-&gt;hdr.tag = ATAG_INITRD2;         /* Initrd2 tag */
+    params-&gt;hdr.size = tag_size(atag_initrd2);  /* size tag */
+
+    params-&gt;u.initrd2.start = start;        /* physical start */
+    params-&gt;u.initrd2.size = size;          /* compressed ramdisk size */
+
+    params = tag_next(params);              /* move pointer to next tag */
+}
+
+static void
+setup_mem_tag(u32_t start, u32_t len)
+{
+    params-&gt;hdr.tag = ATAG_MEM;             /* Memory tag */
+    params-&gt;hdr.size = tag_size(atag_mem);  /* size tag */
+
+    params-&gt;u.mem.start = start;            /* Start of memory area (physical address) */
+    params-&gt;u.mem.size = len;               /* Length of area */
+
+    params = tag_next(params);              /* move pointer to next tag */
+}
+
+static void
+setup_cmdline_tag(const char * line)
+{
+    int linelen = strlen(line);
+
+    if(!linelen)
+        return;                             /* do not insert a tag for an empty commandline */
+
+    params-&gt;hdr.tag = ATAG_CMDLINE;         /* Commandline tag */
+    params-&gt;hdr.size = (sizeof(struct atag_header) + linelen + 1 + 4) &gt;&gt; 2;
+
+    strcpy(params-&gt;u.cmdline.cmdline,line); /* place commandline into tag */
+
+    params = tag_next(params);              /* move pointer to next tag */
+}
+
+static void
+setup_end_tag(void)
+{
+    params-&gt;hdr.tag = ATAG_NONE;            /* Empty tag ends list */
+    params-&gt;hdr.size = 0;                   /* zero length */
+}
+
+
+#define DRAM_BASE 0x10000000
+#define ZIMAGE_LOAD_ADDRESS DRAM_BASE + 0x8000
+#define INITRD_LOAD_ADDRESS DRAM_BASE + 0x800000
+
+static void
+setup_tags(parameters)
+{
+    setup_core_tag(parameters, 4096);       /* standard core tag 4k pagesize */
+    setup_mem_tag(DRAM_BASE, 0x4000000);    /* 64Mb at 0x10000000 */
+    setup_mem_tag(DRAM_BASE + 0x8000000, 0x4000000); /* 64Mb at 0x18000000 */
+    setup_ramdisk_tag(4096);                /* create 4Mb ramdisk */ 
+    setup_initrd2_tag(INITRD_LOAD_ADDRESS, 0x100000); /* 1Mb of compressed data placed 8Mb into memory */
+    setup_cmdline_tag("root=/dev/ram0");    /* commandline setting root device */
+    setup_end_tag(void);                    /* end of tags */
+}
+
+int
+start_linux(char *name,char *rdname)
+{
+    void (*theKernel)(int zero, int arch, u32 params);
+    u32 exec_at = (u32)-1;
+    u32 parm_at = (u32)-1;
+    u32 machine_type;
+
+    exec_at = ZIMAGE_LOAD_ADDRESS;
+    parm_at = DRAM_BASE + 0x100
+
+    load_image(name, exec_at);              /* copy image into RAM */
+
+    load_image(rdname, INITRD_LOAD_ADDRESS);/* copy initial ramdisk image into RAM */
+
+    setup_tags(parm_at);                    /* sets up parameters */
+
+    machine_type = get_mach_type();         /* get machine type */
+
+    irq_shutdown();                         /* stop irq */
+
+    cpu_op(CPUOP_MMUCHANGE, NULL);          /* turn MMU off */
+
+    theKernel = (void (*)(int, int, u32))exec_at; /* set the kernel address */
+
+    theKernel(0, machine_type, parm_at);    /* jump to kernel with register set */
+
+    return 0;
+}</pre></td></tr></tbody></table></div><div class="bibliography"><div class="titlepage"><div><div><h2 class="title"><a name="article_bilbiography"></a>Bibliography</h2></div></div><div></div></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://www.arm.linux.org.uk/developer/" target="_top">ARM Linux website Documentation</a></i>. </span><span class="author"><span class="firstname">Russell</span> <span class="othername">M</span> <span class="surname">King</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://www.arm.linux.org.uk/developer/booting.php" target="_top">Linux Kernel Documentation/arm/booting.txt</a></i>. </span><span class="author"><span class="firstname">Russell</span> <span class="othername">M</span> <span class="surname">King</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2003-January/013126.html" target="_top">Setting R2 correctly for booting the kernel</a> (explanation of booting requirements)</i>. </span><span class="author"><span class="firstname">Russell</span> <span class="othername">M</span> <span class="surname">King</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2002-April/008700.html" target="_top">Wookey's post summarising booting</a></i>. </span><span class="author"><span class="surname">Wookey</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2001-July/004064.html" target="_top">Makefile defines and symbols</a></i>. </span><span class="author"><span class="firstname">Russell</span> <span class="othername">M</span> <span class="surname">King</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://www.aleph1.co.uk/armlinux/docs/ARMbooting/t1.html" target="_top">Bootloader guide</a></i>. </span><span class="author"><span class="surname">Wookey</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2001-October/005212.html" target="_top">Kernel boot order</a></i>. </span><span class="author"><span class="firstname">Russell</span> <span class="othername">M</span> <span class="surname">King</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://lists.arm.linux.org.uk/pipermail/linux-arm-kernel/2002-January/006730.html" target="_top">Advice for head.S Debugging</a></i>. </span><span class="author"><span class="firstname">Russell</span> <span class="othername">M</span> <span class="surname">King</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://billgatliff.com/articles/emb-linux/startup.html/index.html" target="_top">Linux kernel 2.4 startup</a></i>. </span><span class="author"><span class="firstname">Bill</span> <span class="surname">Gatliff</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://www.sf.net/projects/blob/" target="_top">Blob bootloader</a></i>. </span><span class="author"><span class="firstname">Erik</span> <span class="surname">Mouw</span>. </span></p></div><div class="biblioentry"><p><span class="citetitle"><i class="citetitle"><a href="http://www.lart.tudelft.nl/lartware/blob/" target="_top">Blob bootloader on lart</a></i>. </span><span class="author"><span class="firstname">Erik</span> <span class="surname">Mouw</span>. </span></p></div></div></div></body></html>

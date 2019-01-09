@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0049)http://www.dewassoc.com/kbase/hard_drives/lba.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Logical Block Addressing</title>
+<meta name="resource-type" content="document"> 
+<meta name="distribution" content="GLOBAL"> 
+<meta name="description" content="">
+<meta name="copyright" content="DEW Associates Corporation">
+<meta name="keywords" content="LBA Motherboard BIOS Flash Update Int13 Interrupt 13 Barrier Limitation 32GB 7.8GB">
+<meta name="author" content="DEW Associates Corporation">
+<meta name="rating" content="GENERAL">
+<meta name="robots" content="all">
+<meta name="classification" content="Computers, Servers, Networking, Components">
+<meta http-equiv="Reply-To" content="webmaster@dewassoc.com">
+<meta http-equiv="content-type:" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="content-language" content="en">
+<style>
+<!-
+a{text-decoration:none}
+//->
+</style>
+<script>
+<!-- Begin
+function open_window(url) {
+mywin =
+window.open(url,"win",'toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=1,resizable=0,width=600,height=450');
+}
+// End -->
+</script>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#336699" alink="336699" vlink="#336699">
+<p align="center"><font size="5" color="#000080"><b>Logical Block Addressing</b></font></p>
+<!--Start content here-->
+<center><b><font size="2">If you have arrived here through a search engine, and there's no menu to the left
+<a href="http://www.dewassoc.com/kbase/index.html" target="_top">click here</a>!</font></b></center>
+<p>Prior to the advent of Logical Block Addressing, all hard drives were accessed via CHS (Cylinder, Head, Sector) or Extended CHS, which means that the drive was accessed by specifying its cylinder, head and sector address. More appropriately, it was referred to as accessing the drive through its "geometry". Extended CHS was a transition change in the way a drive was accessed in order to work around the 504 MiB barrier, however, the addressing was still done in terms of cylinder, head and sector numbers and then translated one or more times before actually accessing the drive itself.</p>
+<p>By contrast, logical block addressing (LBA) involves a completely new method of addressing sectors. New in that it is new to the EIDE/IDE interface. LBA was first developed around <b><a href="http://www.dewassoc.com/kbase/hard_drives/scsi_vs_ide.htm" target="_blank">SCSI hard drives</a></b>. With LBA, instead of referring to a drives cylinder, head and sector number geometry in order to access or "address" it, each sector is assigned a unique "sector number". In essence, LBA is a means by which a drive is accessed by linearly addressing sector addresses, beginning at sector 1 of head 0, cylinder 0 as LBA 0, and proceeding on in sequence to the last physical sector on the drive, which, for instance, on a standard 540 Meg drive would be LBA 1,065,456. While this was new it the AT Specification <b><a href="http://www.t13.org/" target="_blank">ATA-2</a></b>, it has always been the one and only addressing mode in SCSI. AT Attachment ATA-2 has been subsequently replaced, and the latest AT specification is at ATA-7. Note also that LBA does <i>not</i> allow you to address more sectors than CHS style addressing would.</p>
+<p>In order for you to employ LBA support, it must be supported by both the BIOS and the operating system. In addition, since it is a new method of communicating with the hard drive, the drive itself must support LBA as well. All newer hard drives do in fact support LBA. Often we review other sites to ensure that we provide you with accurate information, and with respect to LBA, we came upon a unique, but inaccurate, statement. One purported authority on computer systems stated that when drives supporting LBA are auto-detected by a BIOS that supports LBA, it will be set up to use that mode. This is inaccurate and misleading, as there's nothing in the BIOS code that will set up your drive to use LBA mode. If you have ever used Fdisk, you may recall that during the drive setup process, you are asked whether you want to enable LBA. Hence, it is a function of the operating system, and therefore don't expect your BIOS to somehow mysteriously setup your drive.</p>
+<p>While it is true that a drive enabled for LBA is not subject to the 504 MiB drive size barrier, there still remains considerable confusion about Logical Block Address and what it does. Many knowledgeable technicians and users believe that it is LBA addressing that avoids the 504 MiB barrier, however this is not quite accurate. Logical Block Addressing isn't getting around the barrier, because it is just another manner in which to address the same geometry. If you were still limited to 1,024 cylinders, 16 heads and 63 sectors, you would still have logical sectors beginning with number 0, and progressing sequentially through to 1,032,191, with the 504 MiB still in place. What does avoid this barrier is that LBA mode automatically enables geometry translation. This translation is required because the operating system calling the <a href="http://www.dewassoc.com/kbase/hard_drives/bios_translation.htm" target="_blank"><b>BIOS Int 13h routines</b></a> knows nothing about LBA. Therefore it is the translation part of LBA that really gets around the barrier.</p>
+<p>When LBA is enabled, the BIOS will enable geometry translation. This translation may be done in the same way that it is done in Extended CHS or large mode via a drives geometry, or it may be done using a different algorithm called LBA-assist translation. It is this translated geometry that is presented to the operating system for use in Int 13h calls. Basically, the difference between LBA and ECHS is that when using ECHS the BIOS translates the parameters used by these calls from the translated geometry to the drive's logical geometry. With LBA, it translates from the translated geometry directly into a logical block (sector) number.</p>
+<p>LBA is currently the dominant form of hard disk addressing. When the 8.4 GB limit of the Int13h interface was reached in 1998-1999, it became impossible to express the geometry of large hard disks using cylinder, head and sector numbers, regardless of whether translated or not, while remaining below the Int13h limits of 1,024 cylinders, 256 heads and 63 sectors. This is one of the reasons that today's hard drives no longer indicate their classical geometry.</p>
+<p align="center"><a href="javascript:history.go(-1)"><img border="0" src="./Logical Block Addressing_files/Back_1.gif" width="56" height="36"></a>
+<!--footer below this line-->
+</p><p><font face="Arial" size="1">Notice: Windows® 95, Windows® 98, Windows® NT, Windows® 2000, Windows® XP and<br>
+Microsoft® Office are registered trademarks or trademarks of the Microsoft Corporation.<br>
+All other trademarks are the property of their respective owners.</font></p>
+<p><font class="footer" face="Verdana,Arial,Helvetica" size="1">Copyright ©1995-2002
+<a href="http://www.dewassoc.com/index.html">DEW Associates Corporation</a>. All rights reserved.</font></p>
+<!-- WiredMinds eMetrics tracking with Enterprise Edition V5.4 START -->
+<script type="text/javascript" src="./Logical Block Addressing_files/count.js.&#19979;&#36733;"></script>
+<script type="text/javascript"><!--
+wm_custnum='62667852fa240140';
+wm_page_name='lba.htm';
+wm_group_name='/services/webpages/d/e/dewassoc.com/public/kbase/hard_drives';
+wm_campaign_key='campaign_id';
+wm_track_alt='';
+wiredminds.count();
+// -->
+</script>
+<!-- WiredMinds eMetrics tracking with Enterprise Edition V5.4 END -->
+
+
+<link rel="stylesheet" type="text/css" href="chrome-extension://liecbddmkiiihnedobmlmillhodjkdmb/css/content.css"></body><loom-container id="lo-engage-ext-container"><loom-shadow data-reactroot="" classname="resolved"></loom-shadow></loom-container></html>
